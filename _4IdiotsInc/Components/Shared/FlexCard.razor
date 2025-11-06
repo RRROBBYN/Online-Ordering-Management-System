@@ -1,0 +1,47 @@
+﻿@inject NavigationManager NavManager
+
+<div class="flex-card" @onclick="Click">
+    <div class="icon-circle">
+        @switch (Icon)
+        {
+            case "dashboard":
+                <div class="dashboard-icon">
+                    <div></div><div></div><div></div><div></div>
+                </div>
+                break;
+            case "service":
+                <div class="service-icon">
+                    <div class="mic"></div>
+                </div>
+                break;
+            case "about us":
+                <div class="aboutus-icon"></div>
+                break;
+            default:
+                <i class="@Icon"></i>
+                break;
+        }
+    </div>
+
+    <h3>@Title</h3>
+    <p>@Description</p>
+
+    <button class="enter-btn">@ButtonText</button>
+</div>
+
+@code {
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public string Title { get; set; } = "Card Title";
+    [Parameter] public string Description { get; set; } = "Card description here.";
+    [Parameter] public string Link { get; set; } = "/";
+    [Parameter] public string ButtonText { get; set; } = "Open";
+
+    private void Click()
+    {
+        if (!string.IsNullOrWhiteSpace(Link))
+        {
+            NavManager.NavigateTo(Link);
+        }
+
+    }
+}

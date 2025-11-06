@@ -1,0 +1,37 @@
+﻿@inherits LayoutComponentBase
+
+    <header class="top-bar">
+        <div class="brand">
+
+            <div class="icon-group">
+                <div class="logo">C</div>
+            </div>
+            <div class="brand-text">
+
+                <h4>CEMEX</h4>
+                <p>Building the Future</p>
+            </div>
+
+        </div>
+        <SearchBar />
+        <div class="profile-btn">
+            <Profile />
+        </div>
+        <div class="cart-btn">
+            <Cart />
+        </div>
+    </header>
+
+    <main class="content">
+        @Body
+    </main>
+    <CartSideBar/>
+@code {
+    public event Action<string>? OnSearch;
+    public event Action? OnProfileClick;
+    public event Action<int>? OnCartUpdate;
+
+    public void TriggerSearch(string query) => OnSearch?.Invoke(query);
+    public void TriggerProfileClick() => OnProfileClick?.Invoke();
+    public void NotifyCartUpdate(int itemCount) => OnCartUpdate?.Invoke(itemCount);
+}

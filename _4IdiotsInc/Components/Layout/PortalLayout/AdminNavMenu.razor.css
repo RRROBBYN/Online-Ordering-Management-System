@@ -1,0 +1,58 @@
+﻿.sidebar {
+    width: 190px;
+    background-color: #ffffff;
+    border-right: 1px solid #4e9ed4;
+    padding: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    transform: scale(0.95);
+    transform-origin: top;
+}
+
+/* Each clickable menu item */
+.nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-decoration: none;
+    color: #0c4a6e;
+    font-weight: 550;
+    padding: 0.4rem 0.3rem;
+    font-size: smaller;
+    border-radius: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+}
+
+    .nav-item:hover {
+        background-color: #e9f5ff;
+        color: #0078d7;
+    }
+
+    .nav-item.active {
+        background-color: #0284c7;
+        color: #ffffff;
+    }
+
+.icon {
+    margin-right: 0.6rem;
+}
+
+.badge {
+    background-color: #dc2626;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    padding: 0.15rem 0.45rem;
+    margin-left: auto;
+}

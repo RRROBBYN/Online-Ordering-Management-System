@@ -1,0 +1,14 @@
+﻿@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="arrow-button" @onclick="GoBack">
+    <div class="gg-arrow-left"></div>
+</div>
+
+
+@code {
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

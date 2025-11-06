@@ -1,0 +1,21 @@
+﻿@rendermode InteractiveServer
+@inject Components.Service.SearchService SearchService
+
+<div class="search-bar">
+    <i class="gg-search"></i>
+    <input type="text"
+           placeholder="Search for cement, concrete, aggregates..."
+           value="@searchQuery"
+           @oninput="OnSearchInput" />
+</div>
+
+@code {
+    private string searchQuery = string.Empty;
+    
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString() ?? string.Empty;
+        SearchService.SearchQuery = searchQuery; // Update the service
+        Console.WriteLine($"SearchBar: Set query to '{searchQuery}'");
+    }
+}

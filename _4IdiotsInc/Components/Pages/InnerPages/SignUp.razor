@@ -1,0 +1,290 @@
+﻿@page "/signup"
+@using _4IdiotsInc.Model
+@inject _4IdiotsInc.Repositories.UserRepository UserRepo
+@inject NavigationManager NavigationManager
+@inject _4IdiotsInc.Components.Service.UserSessionService UserSession
+@layout Layout.MainLayout
+@rendermode InteractiveServer
+
+<div class="welcome-container">
+    <div class="logo-section">
+        <div class="logo-box">C</div>
+        <h1>CEMEX</h1>
+    </div>
+
+    <p class="subtitle">
+        Welcome to Cemex! Please login or create an account to access the dashboard.
+    </p>
+
+    <div class="button-group">
+        <button class="btn-primary" @onclick="ShowLogin">Login</button>
+        <button class="btn-outline" @onclick="ShowSignup">Sign Up</button>
+    </div>
+
+    <a href="/" class="back-link">Back to Home</a>
+</div>
+
+@if (showLogin)
+{
+    <div class="modal-overlay" @onclick="CloseModals">
+        <div class="modal" @onclick:stopPropagation="true">
+            <button class="close-btn" @onclick="CloseModals">×</button>
+
+            <h3>Login</h3>
+            <p>Enter your credentials to access your account</p>
+
+            <div class="login-tabs">
+                @foreach (var mode in LoginModes)
+                {
+                    <button class="@GetTabClass(mode)" @onclick="() => ChangeLoginMode(mode)">
+                        @mode
+                    </button>
+                }
+            </div>
+
+            <label>Email</label>
+            <input placeholder="Enter your email" @bind="loginEmail" />
+
+            <label>Password</label>
+            <input placeholder="Enter your password" type="password" @bind="loginPassword" />
+
+            <button class="btn-primary" @onclick="SubmitLogin" disabled="@isLoading">
+                @(isLoading ? "Logging in..." : $"Login as {loginMode}")
+            </button>
+
+            <hr />
+
+            @if (loginMode == "Customer")
+            {
+                <div class="footer">
+                    Don't have an account?
+                    <button class="btn-outline" @onclick="ShowSignup">Sign Up</button>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@if (showSignup)
+{
+    <div class="modal-overlay" @onclick="CloseModals">
+        <div class="modal" @onclick:stopPropagation="true">
+            <button class="close-btn" @onclick="CloseModals">×</button>
+            <h3>Sign Up</h3>
+            <p>Create a new account to get started</p>
+
+            <label>Full Name</label>
+            <input placeholder="Enter your full name" @bind="signupName" />
+
+            <label>Email</label>
+            <input placeholder="Enter your email" @bind="signupEmail" />
+
+            <label>Password</label>
+            <input placeholder="Create a password"
+                   type="password"
+                   value="@signupPassword"
+                   @oninput="OnPasswordInput" />
+
+            @if (!string.IsNullOrEmpty(passwordError))
+            {
+                <p style="color:red;">@passwordError</p>
+            }
+            else if (!string.IsNullOrEmpty(passwordSuccess))
+            {
+                <p style="color:green;">@passwordSuccess</p>
+            }
+
+            <label>Confirm Password</label>
+            <input placeholder="Confirm your password" type="password" @bind="signupPasswordConfirm" />
+
+            <!-- ✅ Disable button and show progress -->
+            <button class="btn-primary" @onclick="SubmitSignup" disabled="@isSigningUp">
+                @(isSigningUp ? "Signing up..." : "Sign Up")
+            </button>
+
+            <div class="footer">
+                Already have an account?
+                <button @onclick="ShowLogin">Login</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool showLogin;
+    private bool showSignup;
+
+    private string loginMode = "Customer";
+    private string loginEmail = "";
+    private string loginPassword = "";
+    private string signupName = "";
+    private string signupEmail = "";
+    private string signupPassword = "";
+    private string signupPasswordConfirm = "";
+    private string passwordStrength = "";
+    private string passwordError = "";
+    private string passwordSuccess = "";
+
+    bool isLoading = false;     // for login
+    bool isSigningUp = false;   // for signup
+
+    private readonly List<string> LoginModes = new() { "Customer", "Admin" };
+
+    void ShowLogin()
+    {
+        showLogin = true;
+        showSignup = false;
+    }
+
+    void ShowSignup()
+    {
+        showSignup = true;
+        showLogin = false;
+    }
+
+    void CloseModals()
+    {
+        showLogin = showSignup = false;
+    }
+
+    void ChangeLoginMode(string mode)
+    {
+        loginMode = mode;
+    }
+
+    string GetTabClass(string mode) => loginMode == mode ? "active" : "";
+
+    bool ValidatePassword(string password)
+    {
+        passwordError = "";
+        passwordStrength = "";
+        passwordSuccess = "";
+
+        if (string.IsNullOrEmpty(password))
+            return false;
+
+        if (password.Length < 8)
+        {
+            passwordError = "Password must be at least 8 characters long.";
+            return false;
+        }
+
+        bool hasUpper = password.Any(char.IsUpper);
+        bool hasLower = password.Any(char.IsLower);
+        bool hasDigit = password.Any(char.IsDigit);
+        bool hasSymbol = password.Any(ch => !char.IsLetterOrDigit(ch));
+
+        if (!hasUpper || !hasLower || !hasDigit || !hasSymbol)
+        {
+            passwordError = "Password must contain uppercase, lowercase, number, and special character.";
+            return false;
+        }
+
+        if (hasUpper && hasLower && hasDigit && hasSymbol && password.Length >= 8)
+        {
+            passwordSuccess = "Password requirements fulfilled";
+            return true;
+        }
+
+        int score = 0;
+        if (hasUpper) score++;
+        if (hasLower) score++;
+        if (hasDigit) score++;
+        if (hasSymbol) score++;
+        if (password.Length >= 12) score++;
+
+        passwordStrength = score switch
+        {
+            <= 2 => "Weak",
+            3 => "Medium",
+            _ => "Strong"
+        };
+
+        return true;
+    }
+
+    private void OnPasswordInput(ChangeEventArgs e)
+    {
+        signupPassword = e.Value?.ToString() ?? string.Empty;
+        ValidatePassword(signupPassword);
+        StateHasChanged();
+    }
+
+    async Task SubmitSignup()
+    {
+        if (isSigningUp) return;
+        isSigningUp = true;
+
+        try
+        {
+            if (signupPassword != signupPasswordConfirm)
+            {
+                passwordError = "Passwords do not match.";
+                return;
+            }
+
+            if (!ValidatePassword(signupPassword))
+                return;
+
+            var newUser = new UserAccount
+                {
+                    Email = signupEmail,
+                    Username = signupName,
+                    Password = signupPassword, // ⚠️ Hash later
+                    IsAdmin = false,
+                    IsLocked = false
+                };
+
+            await UserRepo.AddUserAsync(newUser);
+            CloseModals();
+            NavigationManager.NavigateTo("/userportal");
+        }
+        finally
+        {
+            isSigningUp = false;
+        }
+    }
+
+    async Task SubmitLogin()
+    {
+        var user = await UserRepo.GetUserByEmailAsync(loginEmail);
+
+        if (user != null && user.Password == loginPassword) // Use proper password hashing in production!
+        {
+            // Set the logged-in user
+            UserSession.SetCurrentUser(user);
+
+            // Navigate to user portal
+            NavigationManager.NavigateTo("/userportal");
+        }
+        else
+        {
+            // Show error message
+            passwordError = "Invalid email or password";
+        }
+        if (isLoading) return;
+        isLoading = true;
+
+        try
+        {
+            bool isValid = await UserRepo.ValidateUserAsync(loginEmail, loginPassword);
+
+            if (isValid)
+            {
+                if (loginMode == "Customer")
+                    NavigationManager.NavigateTo("/userportal");
+                else
+                    NavigationManager.NavigateTo("/adminportal/overview");
+            }
+            else
+            {
+                // show invalid message
+            }
+        }
+        finally
+        {
+            isLoading = false;
+            CloseModals();
+        }
+    }
+}

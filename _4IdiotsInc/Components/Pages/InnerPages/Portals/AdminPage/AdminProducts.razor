@@ -1,0 +1,218 @@
+﻿@page "/adminportal/products"
+@using _4IdiotsInc.Model
+@inject _4IdiotsInc.Repositories.ProductsRepository ProductsRepo
+@inject _4IdiotsInc.Repositories.ProductCategoryRepository CategoryRepo
+@rendermode InteractiveServer
+@layout Layout.PortalLayout.AdminLayout
+
+<PageTitle>Product Management</PageTitle>
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-3">Product Management</h2>
+    <p class="text-muted">Add, edit, and manage your product catalog</p>
+    <button class="btn btn-primary" @onclick="ShowAddModal">
+        <i class="bi bi-plus-lg"></i> Add New Product
+    </button>
+    <div class="card shadow-sm mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center bg-light">
+            <h5 class="mb-0">Product Catalog</h5>
+        </div>
+
+        <div class="card-body">
+            <input type="text" class="form-control mb-3" placeholder="Search products..."
+                   @bind="searchTerm" @bind:after="FilterProducts" />
+
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (filteredProducts == null)
+                    {
+                        <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                    }
+                    else if (!filteredProducts.Any())
+                    {
+                        <tr><td colspan="6" class="text-center text-muted">No products found</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var product in filteredProducts)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="@product.ImageUrl" alt="@product.Name"
+                                             style="width:50px;height:50px;object-fit:cover;border-radius:6px;margin-right:10px;">
+                                        <div>@product.Name</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info text-dark">
+                                        @(categories?.FirstOrDefault(c => c.Id == product.CategoryId)?.Name ?? "Unknown")
+                                    </span>
+                                </td>
+                                <td>₱@product.Price.ToString("N2")</td>
+                                <td>@product.Stock</td>
+                                <td>
+                                    <span class="badge bg-success">Active</span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary me-2" @onclick="() => EditProduct(product.Id)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteProduct(product.Id)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ProductModal IsVisible="@isModalVisible"
+              IsEditMode="@isEditMode"
+              Product="@selectedProduct"
+              Categories="@categories"
+              OnSave="HandleSaveProduct"
+              OnClose="CloseModal" />
+
+@code {
+    private List<Products>? products;
+    private List<Products>? filteredProducts;
+    private List<ProductCategory> categories = new();
+
+    private string searchTerm = string.Empty;
+    private bool isModalVisible = false;
+    private bool isEditMode = false;
+    private Products selectedProduct = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = await ProductsRepo.GetAllProductsAsync();
+            categories = await CategoryRepo.GetAllCategoriesAsync();
+            filteredProducts = products;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+    }
+
+    private void ShowAddModal()
+    {
+        selectedProduct = new Products();
+        isEditMode = false;
+        isModalVisible = true;
+    }
+
+    private async Task HandleSaveProduct(Products product)
+    {
+        try
+        {
+            if (isEditMode)
+            {
+                await ProductsRepo.UpdateProductAsync(product);
+            }
+            else
+            {
+                await ProductsRepo.AddProductAsync(product);
+            }
+
+            // Refresh product list
+            products = await ProductsRepo.GetAllProductsAsync();
+            FilterProducts();
+
+            // Close modal
+            isModalVisible = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving product: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        try
+        {
+            if (products == null) return;
+
+            await ProductsRepo.DeleteProductAsync(id);
+            products = await ProductsRepo.GetAllProductsAsync();
+            FilterProducts();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting product: {ex.Message}");
+        }
+    }
+
+    private async Task EditProduct(int id)
+    {
+        try
+        {
+            var existing = await ProductsRepo.GetProductByIdAsync(id);
+            if (existing != null)
+            {
+                // Create a NEW instance to avoid binding issues
+                selectedProduct = new Products
+                    {
+                        Id = existing.Id,
+                        Name = existing.Name,
+                        Price = existing.Price,
+                        Stock = existing.Stock,
+                        CategoryId = existing.CategoryId,
+                        Description = existing.Description,
+                        ImageUrl = existing.ImageUrl
+                    };
+
+                isEditMode = true;
+                isModalVisible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading product: {ex.Message}");
+        }
+    }
+
+    private void CloseModal()
+    {
+        isModalVisible = false;
+        selectedProduct = new Products(); // Reset
+    }
+
+    private void FilterProducts()
+    {
+        if (products == null)
+        {
+            filteredProducts = null;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredProducts = products;
+        }
+        else
+        {
+            filteredProducts = products
+                .Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+}

@@ -1,0 +1,49 @@
+﻿@page "/"
+@inject NavigationManager navigationManager
+@layout Layout.WelcomeLayout
+@rendermode InteractiveServer
+
+<div class="welcome-section">
+    <h1>Welcome to Cemex</h1>
+    <p class="subtitle">
+        A global building materials company dedicated to providing high-quality products
+        and innovative solutions for sustainable construction
+    </p>
+</div>
+
+
+<div class="home-container">
+    <FlexCard 
+    Icon="dashboard" 
+    Title="Dashboard" 
+    Description="Access your materials shop, view orders, and manage inventory."
+    Link="/signup"
+    ButtonText="Enter Dashboard" />
+
+    <FlexCard
+    Icon="service"
+    Title="Service"
+    Description="Customer support, technical assistance, and service inquiries"
+    Link="/service"
+    ButtonText="Enter Service"
+    />
+
+    <FlexCard
+    Icon="about us"
+    Title="About Us"
+    Description="Learn about Cemex, our history, and corporate information"
+    Link="/about-us"
+    ButtonText="Enter About Us"
+    />
+</div>
+<div class="footer-note">
+    Cemex is a global building materials company that provides high-quality products
+    and reliable service to customers and communities throughout the world.
+</div>
+
+@code{
+    private void HandleClick()
+    {
+        navigationManager.NavigateTo("/signup");
+    }
+}

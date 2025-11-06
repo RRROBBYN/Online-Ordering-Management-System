@@ -1,0 +1,195 @@
+﻿.flex-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: #fff;
+    padding: 2rem 1.5rem;
+    border: 2px solid #bae6fd;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    text-decoration: none;
+    color: #333;
+    width: 280px;
+    transition: all 0.2s ease;
+}
+
+    .flex-card:hover {
+        border-color: #319bd1;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        cursor: pointer;
+    }
+
+.icon-circle {
+    background: linear-gradient(135deg, #2f90ff, #1d7ae6);
+    color: #fff;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin: 0 auto 1rem auto;
+}
+
+
+
+.dashboard-icon {
+    display: grid;
+    grid-template-columns: repeat(2, 16px);
+    grid-template-rows: repeat(2, 16px);
+    gap: 3px; /* balanced spacing */
+    justify-content: center;
+    align-content: center;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    top: 2px; /* subtle vertical nudge for optical centering */
+}
+
+.dashboard-icon div {
+    width: 14px;
+    height: 14px;
+    border: 3px solid #fff;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+.dashboard-icon div:nth-child(1) {
+    width: 14px;
+    height: 16px;
+}
+
+.dashboard-icon div:nth-child(2) {
+
+    width: 14px;
+    height: 12px;
+}
+
+.dashboard-icon div:nth-child(3) {
+    width: 14px;
+    height: 12px;
+}
+
+.dashboard-icon div:nth-child(4) {
+    width: 14px;
+    height: 16px;
+    transform: translateY(-4.5px)
+}
+
+.service-icon {
+    position: relative;
+    width: 36px; /* narrower shape */
+    height: 30px; /* taller for more vertical U */
+    border: 4px solid white;
+    border-bottom: none; /* remove bottom */
+    border-radius: 60px 60px 0 0; /* makes top fully rounded */
+}
+
+ /*Ear pads */
+.service-icon::before,
+.service-icon::after {
+    content: '';
+    position: absolute;
+    width: 11.5px;                 
+    height: 16px;                
+    border: 3.5px solid white;     
+    border-radius: 3.5px;
+    top: 14px;
+    background: transparent;
+}
+
+/* Left pad */
+.service-icon::before {
+    left: -3px;                  
+}
+
+ /*Right pad */
+.service-icon::after {
+    right: -3px;                 
+}
+
+.service-icon .mic {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    border: 4px solid white;
+    border-bottom: none;
+    border-radius: 60px 60px 0 0;
+    clip-path: inset(0 0 20% 50%);
+    transform: rotate(90deg) scale(0.8);
+    transform-origin: center;
+    bottom: -9.5px;
+    right: -5px;
+}
+
+.aboutus-icon {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border: 3.5px solid #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    /* "i" stem */
+    .aboutus-icon::before {
+        content: '';
+        position: absolute;
+        width: 3.5px;
+        height: 10px;
+        background-color: #fff;
+        border-radius: 2px;
+        top: 10px;
+    }
+
+    /* dot above "i" */
+    .aboutus-icon::after {
+        content: '';
+        position: absolute;
+        width: 3.5px;
+        height: 3.5px;
+        background-color: #fff;
+        border-radius: 50%;
+        top: 5px;
+    }
+
+.icon-circle i {
+    color: #fff;
+    font-size: 1.8rem;
+}
+
+.flex-card h3 {
+    margin: 0.25rem 0;
+    font-size: 1.25rem;
+    color: #0078d7;
+}
+
+.flex-card p {
+    margin: 0.5rem 0 1.5rem;
+    font-size: 0.95rem;
+    color: #6e768b;
+}
+
+.enter-btn {
+    background-color: #0078d7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    font-weight: 300;
+    font-size: 12px;
+    opacity: 1; /* keep it visible even if disabled */
+    pointer-events: none;
+}
+
+
+.enter-btn:hover {
+    background-color: #005fa3;
+}

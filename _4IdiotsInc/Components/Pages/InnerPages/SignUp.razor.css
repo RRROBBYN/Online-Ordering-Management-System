@@ -1,0 +1,254 @@
+﻿.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f0f8ff; /* light blue tint */
+    color: #0284c7;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.2rem;
+}
+
+.logo-box {
+    background-color: #0284c7;
+    color: white;
+    font-weight: bold;
+    font-size: 1.3rem;
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-section h1 {
+    color: #0284c7;
+    font-weight: 600;
+    font-size: 1.8rem;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+    max-width: 320px;
+    line-height: 1.4;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    width: 100%;
+    max-width: 260px;
+    margin-bottom: 1rem;
+}
+
+.btn-primary {
+    background-color: #0078d7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .btn-primary:hover {
+        background-color: #005fa3;
+    }
+
+.btn-outline {
+    background-color: transparent;
+    color: #0078d7;
+    border: 2px solid #0078d7;
+    border-radius: 6px;
+    padding: 0.7rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+    .btn-outline:hover {
+        background-color: #0078d7;
+        color: white;
+    }
+
+.back-link {
+    color: #024873;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-top: 0.6rem;
+}
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    background: #eaf6fd;
+    border: 1px solid #b3e0f9;
+    border-radius: 10px;
+    width: 360px;
+    padding: 1.6rem 2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    gap: 0.6rem;
+    position: relative;
+    font-family: 'Segoe UI', sans-serif;
+    /* size behavior */
+    height: auto;
+    /* 👇 makes everything 35% smaller */
+    transform: scale(0.90);
+    transform-origin: center center;
+}
+    .modal h3 {
+        color: #024873;
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+
+    .modal p {
+        font-size: 0.9rem;
+        color: #4b5563;
+        margin-bottom: 0.8rem;
+    }
+
+    .modal label {
+        font-size: 0.9rem;
+        color: #024873;
+        font-weight: 600;
+        text-align: left;
+        margin-top: 0.3rem;
+    }
+
+    .modal input {
+        padding: 0.55rem 0.6rem;
+        border: 1.3px solid #b3e0f9;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        outline: none;
+        background-color: #fff;
+        transition: border-color 0.2s;
+    }
+
+        .modal input:focus {
+            border-color: #0078d7;
+            box-shadow: 0 0 3px rgba(0,120,215,0.3);
+        }
+
+    .modal .btn-primary {
+        background-color: #0078d7;
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.65rem;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        margin-top: 0.6rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+        .modal .btn-primary:hover {
+            background-color: #005fa3;
+        }
+
+    .modal .footer {
+        text-align: center;
+        font-size: 0.85rem;
+        color: #4b5563;
+        margin-top: 0.8rem;
+        border-top: 1px solid #d9ecfa;
+        padding-top: 0.7rem;
+    }
+
+        .modal .footer button {
+            background-color: #dff2ff;
+            color: #0078d7;
+            border: 1px solid #b3e0f9;
+            border-radius: 6px;
+            padding: 0.55rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+            .modal .footer button:hover {
+                background-color: #cce9ff;
+            }
+.login-tabs {
+    display: flex;
+    justify-content: space-between;
+    background-color: #dff2ff;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 1rem;
+}
+
+    .login-tabs button {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding: 0.5rem 0;
+        border-radius: 6px;
+        color: #024873;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+        .login-tabs button.active {
+            background-color: white;
+            color: #024873;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-tabs button:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: #4b5563;
+    cursor: pointer;
+}
+
+    .close-btn:hover {
+        color: #000;
+    }

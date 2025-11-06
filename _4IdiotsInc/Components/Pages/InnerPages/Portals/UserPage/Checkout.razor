@@ -1,0 +1,406 @@
+﻿@page "/userportal/checkout"
+@rendermode InteractiveServer
+@using _4IdiotsInc.Model
+@inject _4IdiotsInc.Components.Service.CartService CartService
+@inject _4IdiotsInc.Components.Service.CheckoutService CheckoutService
+@inject _4IdiotsInc.Repositories.ShippingAddressRepository ShippingRepo
+@inject _4IdiotsInc.Components.Service.UserSessionService UserSession
+@inject NavigationManager Navigation
+
+<div class="container py-4">
+    <div class="mb-4">
+        <button class="btn btn-link text-decoration-none" @onclick="BackToCart">
+            <i class="bi bi-arrow-left me-2"></i>Back to Cart
+        </button>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Shipping & Payment -->
+        <div class="col-lg-7">
+            <!-- Shipping Address Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Shipping Address</h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" @bind="shippingAddress.FirstName" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" @bind="shippingAddress.LastName" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Address</label>
+                            <input type="text" class="form-control" placeholder="Street address"
+                                   @bind="shippingAddress.Address" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" @bind="shippingAddress.City" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Postal Code</label>
+                            <input type="text" class="form-control" @bind="shippingAddress.PostalCode" />
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="saveAddress"
+                                       @bind="saveAddressForFuture">
+                                <label class="form-check-label" for="saveAddress">
+                                    Save this address for future orders
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method Card -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Payment Method</h5>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-secondary text-start p-3 @(selectedPayment == "COD" ? "active border-primary" : "")"
+                                @onclick='() => selectedPayment = "COD"'>
+                            <div class="d-flex align-items-center">
+                                <input class="form-check-input me-3" type="radio" checked="@(selectedPayment == "COD")">
+                                <span>Cash on Delivery</span>
+                            </div>
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start p-3 @(selectedPayment == "GCash" ? "active border-primary" : "")"
+                                @onclick='() => selectedPayment = "GCash"'>
+                            <div class="d-flex align-items-center">
+                                <input class="form-check-input me-3" type="radio" checked="@(selectedPayment == "GCash")">
+                                <span>GCash - Pay Now</span>
+                            </div>
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start p-3 @(selectedPayment == "Card" ? "active border-primary" : "")"
+                                @onclick='() => selectedPayment = "Card"'>
+                            <div class="d-flex align-items-center">
+                                <input class="form-check-input me-3" type="radio" checked="@(selectedPayment == "Card")">
+                                <span>Credit/Debit Card - Pay Now</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Order Summary -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Order Summary</h5>
+
+                    @foreach (var item in CartService.CartItems)
+                    {
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="@item.ImageUrl" alt="@item.ProductName"
+                                 class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                            <div class="ms-3 flex-grow-1">
+                                <h6 class="mb-0 small">@item.ProductName</h6>
+                                <small class="text-muted">×@item.Quantity</small>
+                            </div>
+                            <strong>₱@((item.Price * item.Quantity).ToString("N2"))</strong>
+                        </div>
+                    }
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span>₱@subtotal.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Shipping</span>
+                        <span>₱@shippingFee.ToString("N2")</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <strong>Total</strong>
+                        <strong class="text-primary">₱@total.ToString("N2")</strong>
+                    </div>
+
+                    <button class="btn btn-primary w-100" @onclick="ProceedToPayment" disabled="@isProcessing">
+                        @if (isProcessing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        Proceed to Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GCash Payment Modal -->
+@if (showGCashModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">
+                        <i class="bi bi-phone me-2"></i>GCash Payment
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <h3 class="text-primary">₱@total.ToString("N2")</h3>
+                        <p class="text-muted">Total Amount</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">GCash Number</label>
+                        <input type="text" class="form-control" placeholder="09XX XXX XXXX"
+                               @bind="gcashNumber" maxlength="11">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">4-Digit MPIN</label>
+                        <input type="password" class="form-control" placeholder="••••"
+                               @bind="gcashMpin" maxlength="4">
+                    </div>
+
+                    <button class="btn btn-primary w-100 mb-2" @onclick="ProcessPayment" disabled="@isProcessing">
+                        @if (isProcessing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        Pay ₱@total.ToString("N2")
+                    </button>
+                    <button class="btn btn-outline-secondary w-100" @onclick="CloseModals" disabled="@isProcessing">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Card Payment Modal -->
+@if (showCardModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">
+                        <i class="bi bi-credit-card me-2"></i>Card Payment
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CloseModals"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <h3 class="text-primary">₱@total.ToString("N2")</h3>
+                        <p class="text-muted">Total Amount</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-control" placeholder="1234 5678 9012 3456"
+                               @bind="cardNumber" maxlength="19">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cardholder Name</label>
+                        <input type="text" class="form-control" placeholder="JOHN DOE"
+                               @bind="cardholderName">
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="text" class="form-control" placeholder="MM/YY"
+                                   @bind="cardExpiry" maxlength="5">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">CVV</label>
+                            <input type="password" class="form-control" placeholder="•••"
+                                   @bind="cardCvv" maxlength="3">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 mb-2" @onclick="ProcessPayment" disabled="@isProcessing">
+                        @if (isProcessing)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        Pay ₱@total.ToString("N2")
+                    </button>
+                    <button class="btn btn-outline-secondary w-100" @onclick="CloseModals" disabled="@isProcessing">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string currentUserId => UserSession.CurrentUserId ?? string.Empty;
+
+    private UserShippingAddress shippingAddress = new();
+    private bool saveAddressForFuture = false;
+    private string selectedPayment = "COD";
+
+    private decimal subtotal = 0;
+    private decimal shippingFee = 50;
+    private decimal total = 0;
+
+    private bool isProcessing = false;
+    private bool showGCashModal = false;
+    private bool showCardModal = false;
+
+    // Payment form fields
+    private string gcashNumber = string.Empty;
+    private string gcashMpin = string.Empty;
+    private string cardNumber = string.Empty;
+    private string cardholderName = string.Empty;
+    private string cardExpiry = string.Empty;
+    private string cardCvv = string.Empty;
+    private bool shouldRedirect = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Redirect if cart is empty
+        if (!CartService.CartItems.Any())
+        {
+            shouldRedirect = true;
+            return;
+        }
+
+        // Load saved address if exists
+        var savedAddress = await ShippingRepo.GetDefaultAddressAsync(currentUserId);
+        if (savedAddress != null)
+        {
+            shippingAddress = savedAddress;
+        }
+        else
+        {
+            shippingAddress.UserId = currentUserId;
+        }
+
+        CalculateTotals();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && shouldRedirect)
+        {
+            Navigation.NavigateTo("/userportal");
+        }
+    }
+
+    private void CalculateTotals()
+    {
+        subtotal = CartService.TotalPrice;
+        total = subtotal + shippingFee;
+    }
+
+    private void BackToCart()
+    {
+        Navigation.NavigateTo("/userportal");
+        CartService.OpenCart();
+    }
+
+    private void ProceedToPayment()
+    {
+        // Validate shipping address
+        if (string.IsNullOrWhiteSpace(shippingAddress.FirstName) ||
+            string.IsNullOrWhiteSpace(shippingAddress.LastName) ||
+            string.IsNullOrWhiteSpace(shippingAddress.Address) ||
+            string.IsNullOrWhiteSpace(shippingAddress.City) ||
+            string.IsNullOrWhiteSpace(shippingAddress.PostalCode))
+        {
+            // TODO: Show validation message
+            Console.WriteLine("Please fill in all shipping address fields");
+            return;
+        }
+
+        // Show appropriate payment modal
+        if (selectedPayment == "GCash")
+        {
+            showGCashModal = true;
+        }
+        else if (selectedPayment == "Card")
+        {
+            showCardModal = true;
+        }
+        else if (selectedPayment == "COD")
+        {
+            ProcessPayment();
+        }
+    }
+
+    private async Task ProcessPayment()
+    {
+        isProcessing = true;
+
+        try
+        {
+            // Validate payment details based on method
+            if (selectedPayment == "GCash" && (string.IsNullOrWhiteSpace(gcashNumber) || string.IsNullOrWhiteSpace(gcashMpin)))
+            {
+                Console.WriteLine("Please fill in GCash details");
+                isProcessing = false;
+                return;
+            }
+
+            if (selectedPayment == "Card" && (string.IsNullOrWhiteSpace(cardNumber) || string.IsNullOrWhiteSpace(cardholderName)))
+            {
+                Console.WriteLine("Please fill in card details");
+                isProcessing = false;
+                return;
+            }
+
+            // Process checkout WITH payment method
+            var result = await CheckoutService.ProcessCheckoutAsync(
+                currentUserId,
+                shippingAddress,
+                selectedPayment, // Pass the selected payment method
+                saveAddressForFuture
+            );
+
+            if (result.Success)
+            {
+                CloseModals();
+                // Navigate to order confirmation
+                Navigation.NavigateTo($"/userportal/order-confirmation/{result.OrderId}");
+            }
+            else
+            {
+                Console.WriteLine($"Checkout failed: {result.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Payment error: {ex.Message}");
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private void CloseModals()
+    {
+        showGCashModal = false;
+        showCardModal = false;
+        gcashNumber = string.Empty;
+        gcashMpin = string.Empty;
+        cardNumber = string.Empty;
+        cardholderName = string.Empty;
+        cardExpiry = string.Empty;
+        cardCvv = string.Empty;
+    }
+}

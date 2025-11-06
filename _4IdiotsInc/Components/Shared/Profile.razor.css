@@ -1,0 +1,73 @@
+﻿.gg-profile,
+.gg-profile::after,
+.gg-profile::before {
+    display: block;
+    box-sizing: border-box;
+    border: 2px solid;
+    border-radius: 100px;
+}
+
+.gg-profile {
+    overflow: hidden;
+    transform: scale(var(--ggs, 1));
+    width: 22px;
+    height: 22px;
+    position: relative;
+}
+
+    .gg-profile::after,
+    .gg-profile::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 5px;
+        width: 8px;
+        height: 8px;
+    }
+
+    .gg-profile::after {
+        border-radius: 200px;
+        top: 11px;
+        left: 0px;
+        width: 18px;
+        height: 18px;
+    }
+
+
+/* 🌟 Interactive Button Styling */
+.profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background-color: #f0f8ff;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    color: #64748b;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+    /* Hover animation */
+    .profile-btn:hover {
+        background-color: #bae6fd;
+        color: #013b5f;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    }
+
+    /* Click (active) feedback */
+    .profile-btn:active {
+        transform: scale(0.96);
+        background-color: #9cd4f8;
+    }
+
+    /* Optional: make icon respond to hover */
+    .profile-btn:hover .gg-profile {
+        transform: scale(1.2);
+        transition: transform 0.2s ease;
+    }

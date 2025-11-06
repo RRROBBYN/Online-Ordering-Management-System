@@ -1,0 +1,23 @@
+﻿@inherits LayoutComponentBase
+
+<div class="admin-layout">
+    <header class="top-bar">
+        <div class="brand">
+            <div class="logo">C</div>
+            <div class="brand-text">
+                <h4>CEMEX</h4>
+                <p>Management Portal</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-area">
+        <div class="sidebar">
+            <AdminNavMenu />
+        </div>
+
+        <main class="content">
+            @Body
+        </main>
+    </div>
+</div>

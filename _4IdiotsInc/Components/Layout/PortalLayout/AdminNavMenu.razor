@@ -1,0 +1,45 @@
+﻿@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+<div class="sidebar">
+    <nav>
+        @foreach (var item in MenuItems)
+        {
+            <div class="nav-item @(ActiveItem == item.Label ? "active" : "")"
+            @onclick="() => SetActive(item)">
+                <span class="icon">@item.Icon</span>
+                <span>@item.Label</span>
+
+                @if (item.BadgeCount > 0)
+                {
+                    <span class="badge">@item.BadgeCount</span>
+                }
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private string ActiveItem = "Overview";
+
+    private record NavItem(string Icon, string Label, int BadgeCount, string url);
+
+    private List<NavItem> MenuItems = new()
+    {
+        new("📈", "Overview", 0, "/adminportal/overview"),
+        new("🛒", "Orders", 1, "/adminportal/orders"),
+        new("📦", "Inventory", 2, "/adminportal/inventory"),
+        new("📋", "Products", 0, "/adminportal/products"),
+        new("💲", "Sales & Reports", 0, "/adminportal/sales-report"),
+        new("🎧", "Customer Service", 0, "/adminportal/customer-service"),
+        new("👥", "Customers", 0, "/adminportal/Customers"),
+        new("⚙️", "Staff", 0, "/adminportal/staff"),
+        new("🔔", "Notifications", 5, "/adminportal/notifications")
+    };
+
+    private void SetActive(NavItem item)
+    {
+        ActiveItem = item.Label;
+        NavigationManager.NavigateTo(item.url);
+
+    }
+}
